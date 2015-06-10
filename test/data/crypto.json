@@ -1,0 +1,29 @@
+{
+  "md5" : {
+    "asdf" : "912ec803b2ce49e4a541068d495ab570"
+  },
+  "sha512" : {
+    "asdf" : "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429080fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1"
+  },
+  "sha256" : {
+    "asdf" : "f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b"
+  },
+  "sha1" : {
+    "asdf" : "3da541559918a808c2402bba5012f6c60b27661c"
+  },
+  "base64" : {
+    "asdf" : "YXNkZg==",
+    "this is a very long text to check" : "dGhpcyBpcyBhIHZlcnkgbG9uZyB0ZXh0IHRvIGNoZWNr"
+  },
+  "hmac" : {
+    "key" : "secret",
+    "data" : {
+      "asdf" : {
+        "md5" : "a93ee407ea58dcdd884cdc91afa03acb",
+        "sha1" : "28c350a66bcdf32c87c9612cfb6bbde7269b95ec",
+        "sha256" : "7a318e92086156fe74d2078df8da87b1b73a06ca107fa234f74312d2c17d0e86",
+        "sha512" : "d2a4ed8c7842129192ce0761a7543d1fcc6dde7357b865a844891feb2422850d994befe9a12b055755b458e52fa7ce688b0230cb920a46a28fd6ffc7ebff8a7f"
+      }
+    }
+  }
+}
