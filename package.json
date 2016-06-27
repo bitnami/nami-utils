@@ -2,6 +2,9 @@
   "name": "nami-utils",
   "version": "0.0.1",
   "description": "Utility functions for Nami",
+  "repository": {
+    "type" : "git", "url" : "https://github.com/bitnami/nami-utils.git"
+  },
   "scripts": {
     "test": "gulp test",
     "lint": "gulp lint",
