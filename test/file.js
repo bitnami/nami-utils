@@ -14,6 +14,12 @@ const generateRandomData = require('nami-test/lib/utils').generateRandomData;
 const fnWrapping = require('../lib/function-wrapping.js');
 chai.use(chaiFs);
 
+let noRootIt = null;
+if (process.getuid() !== 0) {
+  noRootIt = it;
+} else {
+  noRootIt = xit;
+}
 
 function normalizePermissions(perm) {
   const pad = '0'.repeat(4 - perm.length);
@@ -865,7 +871,7 @@ describe('$file pkg', function() {
             fs.chmodSync(f, '0555');
             expect($file.writableBy(f, 'root')).to.be.true;
           });
-          it('Properly checks if writable by the current user', function() {
+          noRootIt('Properly checks if writable by the current user', function() {
             const username = execSync('whoami').toString().trim();
             const f = s.write('a/b/c/file.txt', '');
             expect($file.writableBy(f, username)).to.be.true;
