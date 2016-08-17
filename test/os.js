@@ -5,8 +5,9 @@ const chaiFs = require('chai-fs');
 const fs = require('fs-extra');
 const expect = chai.expect;
 const _ = require('lodash');
-const execSync = require('child_process').execSync;
-const spawn = require('child_process').spawn;
+const cp = require('child_process');
+const execSync = cp.execSync;
+const spawn = cp.spawn;
 const Sandbox = require('nami-test/lib/sandbox');
 const $os = require('../os');
 const sleep = require('../util').sleep;
@@ -94,6 +95,59 @@ describe('$os package', function() {
     it('Can be configured to capture std streams and never fail', function() {
       expect($os.runProgram('echo', 'Error executing program >&2 && exit 1', {retrieveStdStreams: true}))
         .to.eql({stderr: 'Error executing program\n', stdout: '', code: 1});
+    });
+    describe('Failure management', function() {
+      let child = null;
+      let sb = null;
+      let pidFile = null;
+      before(function() {
+        sb = new Sandbox();
+        pidFile = sb.normalize('run.pid');
+        const shellScript = sb.write('run.sh', `
+#!/bin/sh
+PID_FILE="${pidFile}"
+echo $$ >> $PID_FILE
+while [ true ]; do
+  sleep 0.1
+done
+`);
+        fs.chmodSync(shellScript, '0755');
+        const worker = sb.write('worker.js', `
+const $os = require('${__dirname}/../os');
+process.on('message', function() {
+  process.send('start');
+  // Pass results back to parent process
+  process.send($os.runProgram('${shellScript}', {retrieveStdStreams: true}));
+});`);
+        child = cp.fork(worker);
+      });
+      after(function() {
+        child.disconnect();
+        sb.cleanup();
+      });
+      it('Properly reports exit code on killed processes', function(done) {
+        child.on('message', function(msg) {
+          if (msg === 'start') {
+            setTimeout(function() {
+              const pid = parseInt(fs.readFileSync(pidFile).toString().trim(), 10);
+              if (_.isFinite(pid)) {
+                process.kill(pid, 'SIGKILL');
+              }
+            }, 200);
+          } else {
+            // Exit code should be 128 + signal (SIGKILL is 9)
+            expect(msg.code).to.be.eql(128 + 9);
+            expect(msg.stderr).to.be.eql('Terminated\n');
+            done();
+          }
+        });
+        child.on('exit', function(code) {
+          if (code !== 0) {
+            done('Child failed');
+          }
+        });
+        child.send('run');
+      });
     });
     it('Do not reports any default stderr message if the process did not write to it when retrieving std streams',
        function() {

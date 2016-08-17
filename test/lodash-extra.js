@@ -238,5 +238,19 @@ describe('Lodash Extra', function() {
       expect($ld.endsWith('abc', 'b')).to.be.eql(false);
       expect($ld.endsWith('abc', 'b', 2)).to.be.eql(true);
     });
+    it('#trimStart()', function() {
+      const expected = 'abc  ';
+      expect($ld.trimStart(expected)).to.be.eql(expected);
+      expect($ld.trimStart(` ${expected}`)).to.be.eql(expected);
+      expect($ld.trimStart(`   ${expected}`)).to.be.eql(expected);
+      expect($ld.trimStart(`\n \n ${expected}`)).to.be.eql(expected);
+    });
+    it('#trimEnd()', function() {
+      const expected = '  abc';
+      expect($ld.trimEnd(expected)).to.be.eql(expected);
+      expect($ld.trimEnd(`${expected} `)).to.be.eql(expected);
+      expect($ld.trimEnd(`${expected}   `)).to.be.eql(expected);
+      expect($ld.trimEnd(`${expected}\n \n `)).to.be.eql(expected);
+    });
   });
 });
