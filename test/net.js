@@ -6,7 +6,7 @@ const $net = require('../net');
 const _ = require('lodash');
 
 describe('$net package', function() {
-  const freePort = 16788;
+  const freePort = 16798;
   const freePrivilegedPort = 987;
   // Reuse port format validation tests for all functions receiving a port as argument
   function createPortFormatTests(toTestFunction) {
@@ -45,7 +45,7 @@ describe('$net package', function() {
       expect($net.isPortInUse(freePort)).to.be.eql(false);
     });
     it('Detects a port is in use', function(done) {
-      takePort(16789, function(port) {
+      takePort(freePort, function(port) {
         if ($net.isPortInUse(port)) {
           done();
         } else {
@@ -60,7 +60,7 @@ describe('$net package', function() {
       expect($net.canBindToPort(freePort)).to.be.eql(true);
     });
     it('Cannot bind to a taken port', function(done) {
-      takePort(16889, function(port) {
+      takePort(freePort, function(port) {
         if ($net.canBindToPort(port)) {
           done(new Error(`Process should not be able to bind to taken port ${port}`));
         } else {
@@ -78,5 +78,54 @@ describe('$net package', function() {
       });
     }
     createPortFormatTests($net.canBindToPort);
+  });
+  describe('#waitForPort()', function() {
+    it('Waits for free port', function() {
+      expect($net.waitForPort(freePort, {timeout: 1})).to.be.eql(true);
+      expect($net.waitForPort(freePort, {state: 'free', timeout: 1})).to.be.eql(true);
+      expect($net.waitForPortToBeFree(freePort, {timeout: 1})).to.be.eql(true);
+    });
+    it('Waits for bound port (I)', function(done) {
+      takePort(freePort, function(port) {
+        if ($net.waitForPort(port, {state: 'bound', timeout: 1})) {
+          done();
+        } else {
+          done(new Error(`Port ${port} bound but not detected`));
+        }
+      });
+    });
+    it('Waits for bound port (II)', function(done) {
+      takePort(freePort, function(port) {
+        if ($net.waitForPortToBeBound(port, {timeout: 1})) {
+          done();
+        } else {
+          done(new Error(`Port ${port} bound but not detected`));
+        }
+      });
+    });
+    it('Returns false on timeout waiting port to be free (I)', function(done) {
+      takePort(freePort, function(port) {
+        if ($net.waitForPort(port, {timeout: 1})) {
+          done(new Error(`Port ${port} bound but not detected`));
+        } else {
+          done();
+        }
+      });
+    });
+    it('Returns false on timeout waiting port to be free (II)', function(done) {
+      takePort(freePort, function(port) {
+        if ($net.waitForPortToBeFree(port, {timeout: 1})) {
+          done(new Error(`Port ${port} bound but not detected`));
+        } else {
+          done();
+        }
+      });
+    });
+    it('Returns false on timeout waiting port to be bound (I)', function() {
+      expect($net.waitForPort(freePort, {state: 'bound', timeout: 1})).to.be.eql(false);
+    });
+    it('Returns false on timeout waiting port to be bound (II)', function() {
+      expect($net.waitForPortToBeBound(freePort, {timeout: 1})).to.be.eql(false);
+    });
   });
 });
