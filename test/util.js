@@ -159,7 +159,7 @@ _.each({
     it('Fails if step is not a finite number', function() {
       _.each(['sometext', {}, Infinity], function(value) {
         expect(function() {
-          $util.retryWhile(function() {return false;}, {step: value});
+          $util.retryWhile(function() { return false; }, {step: value});
         }).to.throw(TypeError);
       });
       expect($util.retryWhile(function() {
@@ -169,11 +169,11 @@ _.each({
     it('Fails if timeout is not a finite number or Infinity', function() {
       _.each(['sometext', {}], function(value) {
         expect(function() {
-          $util.retryWhile(function() {return false;}, {timeout: value});
+          $util.retryWhile(function() { return false; }, {timeout: value});
         }).to.throw(TypeError);
       });
       _.each([1, Infinity], function(value) {
-        expect($util.retryWhile(function() {return false;}, {timeout: value})).to.be.eql(true);
+        expect($util.retryWhile(function() { return false; }, {timeout: value})).to.be.eql(true);
       });
     });
     it('Returns false if timeout', function() {
