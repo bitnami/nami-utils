@@ -85,7 +85,7 @@ describe('$net package', function() {
       expect($net.waitForPort(freePort, {state: 'free', timeout: 1})).to.be.eql(true);
       expect($net.waitForPortToBeFree(freePort, {timeout: 1})).to.be.eql(true);
     });
-    it('Waits for bound port', function(done) {
+    it('Waits for bound port (I)', function(done) {
       takePort(freePort, function(port) {
         if ($net.waitForPort(port, {state: 'bound', timeout: 1})) {
           done();
@@ -93,6 +93,8 @@ describe('$net package', function() {
           done(new Error(`Port ${port} bound but not detected`));
         }
       });
+    });
+    it('Waits for bound port (II)', function(done) {
       takePort(freePort, function(port) {
         if ($net.waitForPortToBeBound(port, {timeout: 1})) {
           done();
@@ -101,7 +103,7 @@ describe('$net package', function() {
         }
       });
     });
-    it('Returns false on timeout waiting port to be free', function(done) {
+    it('Returns false on timeout waiting port to be free (I)', function(done) {
       takePort(freePort, function(port) {
         if ($net.waitForPort(port, {timeout: 1})) {
           done(new Error(`Port ${port} bound but not detected`));
@@ -109,6 +111,8 @@ describe('$net package', function() {
           done();
         }
       });
+    });
+    it('Returns false on timeout waiting port to be free (II)', function(done) {
       takePort(freePort, function(port) {
         if ($net.waitForPortToBeFree(port, {timeout: 1})) {
           done(new Error(`Port ${port} bound but not detected`));
