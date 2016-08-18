@@ -145,4 +145,51 @@ _.each({
       });
     });
   });
+  describe('#retryWhile()', function() {
+    it('Fails if not passing a function', function() {
+      _.each([1, 'text', {}, [], true], function(func) {
+        expect(function() {
+          $util.retryWhile(func);
+        }).to.throw(TypeError);
+      });
+      expect($util.retryWhile(function() {
+        return false;
+      })).to.be.eql(true);
+    });
+    it('Fails if step is not a finite number', function() {
+      _.each(['sometext', {}, Infinity], function(value) {
+        expect(function() {
+          $util.retryWhile(function() {return false;}, {step: value});
+        }).to.throw(TypeError);
+      });
+      expect($util.retryWhile(function() {
+        return false;
+      }, {step: 1})).to.be.eql(true);
+    });
+    it('Fails if timeout is not a finite number or Infinity', function() {
+      _.each(['sometext', {}], function(value) {
+        expect(function() {
+          $util.retryWhile(function() {return false;}, {timeout: value});
+        }).to.throw(TypeError);
+      });
+      _.each([1, Infinity], function(value) {
+        expect($util.retryWhile(function() {return false;}, {timeout: value})).to.be.eql(true);
+      });
+    });
+    it('Returns false if timeout', function() {
+      expect($util.retryWhile(function() {
+        return true;
+      }, {step: 0.1, timeout: 0.3})).to.be.eql(false);
+    });
+    it('Returns true if expected result on time', function() {
+      const deadline = new Date().getTime() + 500;
+      expect($util.retryWhile(function() {
+        if (new Date().getTime() <= deadline) {
+          return true;
+        } else {
+          return false;
+        }
+      }, {step: 0.1, timeout: 3})).to.be.eql(true);
+    });
+  });
 });
