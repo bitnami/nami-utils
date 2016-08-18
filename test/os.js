@@ -25,6 +25,15 @@ if (process.getuid() === 0) {
   rootDescribe = xdescribe;
 }
 
+function _commandExists(command) {
+  try {
+    execSync(`which ${command}`);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 describe('$os package', function() {
   function getNonExistentPid() {
     // We start with a weird enough PID
@@ -419,9 +428,18 @@ process.on('message', function() {
       });
     });
   });
-  describe('#getUserGroups()', function() {
+  rootDescribe('#getUserGroups()', function() {
+    const user = `user_${_.random('10000', '100000')}`;
+    before(function() {
+      $os.addGroup(user);
+      $os.addUser(user, {gid: $os.findGroup(user).id});
+    });
     it('Get specific user groups', function() {
-      expect($os.getUserGroups('daemon')).to.be.eql(['daemon']);
+      expect($os.getUserGroups(user)).to.be.eql([user]);
+    });
+    after(function() {
+      $os.deleteUser(user);
+      $os.deleteGroup(user);
     });
   });
   describe('#findUser()', function() {
@@ -472,9 +490,14 @@ process.on('message', function() {
     }
 
     rootDescribe('#deleteGroup()', function() {
-      const group = `hp_test_group_${_.random('10000', '100000')}`;
+      let group = null;
       before(function() {
-        execSync(`groupadd ${group}`);
+        group = `hp_test_group_${_.random('10000', '100000')}`;
+        if (_commandExists('groupadd')) {
+          execSync(`groupadd ${group}`);
+        } else {
+          execSync(`addgroup ${group}`);
+        }
       });
       rootIt('Deletes a group', function() {
         expect(groupExists(group)).to.be.eql(true);
@@ -483,9 +506,13 @@ process.on('message', function() {
       });
       after(function() {
         try {
-          execSync(`groupdel ${group}  2>/dev/null`);
+          if (_commandExists('groupdel')) {
+            execSync(`groupdel ${group}  2>/dev/null`);
+          } else {
+            execSync(`delgroup ${group}  2>/dev/null`);
+          }
         } catch (e) {
-          if (e.status !== 6) throw e;
+          // we expect exceptions here when the test goes well
         }
       });
     });
@@ -499,7 +526,11 @@ process.on('message', function() {
       });
       after(function() {
         try {
-          execSync(`groupdel ${group}`);
+          if (_commandExists('groupdel')) {
+            execSync(`groupdel ${group}  2>/dev/null`);
+          } else {
+            execSync(`delgroup ${group}  2>/dev/null`);
+          }
         } catch (e) {
           if (e.status !== 6) throw e;
         }
@@ -523,16 +554,25 @@ process.on('message', function() {
       });
       afterEach(function() {
         try {
-          execSync(`userdel ${user}  2>/dev/null`);
+          if (_commandExists('userdel')) {
+            execSync(`userdel ${user}  2>/dev/null`);
+          } else {
+            execSync(`deluser ${user}  2>/dev/null}`);
+          }
         } catch (e) {
           if (e.status !== 6) throw e;
         }
       });
     });
     rootDescribe('#deleteUser()', function() {
-      const user = `hp_test_user_${_.random('10000', '100000')}`;
+      let user = null;
       before(function() {
-        execSync(`useradd ${user}`);
+        user = `hp_test_user_${_.random('10000', '100000')}`;
+        if (_commandExists('useradd')) {
+          execSync(`useradd ${user}`);
+        } else {
+          execSync(`adduser -D ${user}`);
+        }
       });
       rootIt('Deletes an user', function() {
         expect(userExists(user)).to.be.eql(true);
@@ -541,9 +581,13 @@ process.on('message', function() {
       });
       after(function() {
         try {
-          execSync(`userdel ${user}  2>/dev/null`);
+          if (_commandExists('userdel')) {
+            execSync(`userdel ${user}  2>/dev/null`);
+          } else {
+            execSync(`deluser ${user}  2>/dev/null}`);
+          }
         } catch (e) {
-          if (e.status !== 6) throw e;
+          // we expect exceptions here when the test goes well
         }
       });
     });
