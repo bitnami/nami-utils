@@ -1,6 +1,6 @@
 {
   "name": "nami-utils",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Utility functions for Nami",
   "repository": {
     "type" : "git", "url" : "https://github.com/bitnami/nami-utils.git"
@@ -52,7 +52,7 @@
     "mocha": "^2.5.3",
     "mocha-teamcity-cov-reporter": "^0.0.1",
     "mocha-teamcity-reporter": "^1.0.0",
-    "nami-test": "^0.0.1",
+    "nami-test": "^0.0.2",
     "run-sequence": "^1.2.1",
     "tmp": "^0.0.28"
   }
