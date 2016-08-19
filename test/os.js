@@ -10,7 +10,6 @@ const execSync = cp.execSync;
 const spawn = cp.spawn;
 const Sandbox = require('nami-test/lib/sandbox');
 const $os = require('../os');
-const sleep = require('../util').sleep;
 chai.use(chaiFs);
 
 /* eslint-disable no-unused-expressions */
@@ -243,24 +242,62 @@ process.on('message', function() {
     after(function() {
       sb.cleanup();
     });
-    // TODO The process executed gets defunct, which does not set the running property to false
-    xit('Executes processes in background', function() {
+    it('Executes processes in background', function(done) {
       const handler = $os.spawnAsync('sleep', ['0.5']);
       expect(handler.running).to.be.true;
       expect(handler.pid).to.be.above(1);
-      sleep(1);
-      expect(handler.running).to.be.false;
+      setTimeout(function() {
+        if (handler.running) {
+          done(new Error('Expected the process to not be running'));
+        } else {
+          done();
+        }
+      }, 1000);
     });
-    // TODO Once the timeout is due, the handler is no longer updated with the process information
-    xit('Allows to set a timeout for the process to finish before continuing', function() {
-      const handler = $os.spawnAsync('sleep', ['1.5s'], {wait: true, timeout: 1});
-      expect(handler.running).to.be.true;
-      sleep(1);
-      expect(handler.running).to.be.false;
+    it('Allows to set a timeout for the process to finish before continuing', function(done) {
+      const result = $os.spawnAsync('sleep', ['1s'], {wait: true, timeout: 0.2});
+
+      // The property running will reflect the state of the process when the handler was detached
+      expect(result.running).to.be.true;
+
+      expect(result.handler.kill(0)).to.be.true;
+      setTimeout(function() {
+        // Using kill(0) because {wait: true} detaches the handler from the process
+        // so the 'running' property is no longer updated
+        if (result.handler.kill(0)) {
+          done(new Error('Expected the process to not be running'));
+        } else {
+          done();
+        }
+      }, 1000);
     });
     it('Allows to throw an error if the timeout is due', function() {
       expect(() => $os.spawnAsync('sleep', ['3s'], {wait: true, timeout: 1, throwOnTimeout: true}))
         .to.throw(/Exceeded timeout/);
+    });
+    it('Allows to stop the process using the handler', function(done) {
+      const handler = $os.spawnAsync('sleep', ['2s']);
+      expect(handler.running).to.be.true;
+      expect(handler.kill()).to.be.true;
+      setTimeout(function() {
+        if (handler.running) {
+          done(new Error('Expected the process to not be running'));
+        } else {
+          done();
+        }
+      }, 200);
+    });
+    it('Allows to kill the process using the handler', function(done) {
+      const handler = $os.spawnAsync('sleep', ['2s']);
+      expect(handler.running).to.be.true;
+      expect(handler.kill('SIGKILL')).to.be.true;
+      setTimeout(function() {
+        if (handler.running) {
+          done(new Error('Expected the process to not be running'));
+        } else {
+          done();
+        }
+      }, 200);
     });
     it('Allows to access process output', function() {
       const expected = 'Some text';
