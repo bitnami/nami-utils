@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "description": "Utility functions for Nami",
   "repository": {
-    "type" : "git", "url" : "https://github.com/bitnami/nami-utils.git"
+    "type": "git",
+    "url": "https://github.com/bitnami/nami-utils.git"
   },
   "scripts": {
     "test": "gulp test",
     "lint": "gulp lint",
+    "cpd": "gulp cpd",
     "ci-test": "gulp ci-test",
     "ci-lint": "gulp ci-lint",
+    "ci-cpd": "gulp ci-cpd",
     "eslint-report": "eslint *.js lib -f node_modules/eslint-html-reporter/reporter.js -o qa/eslint-report.html"
   },
   "author": "Bitnami",
@@ -32,28 +35,15 @@
     "xregexp": "^3.1.1"
   },
   "devDependencies": {
-    "babel-eslint": "^6.0.5",
-    "babel-preset-es2015": "^6.9.0",
+    "bitnami-gulp-common-tasks": "bitnami/gulp-common-tasks#v2.0.1",
     "chai": "^3.5.0",
     "chai-fs": "git+https://github.com/bitnami/chai-fs.git",
-    "del": "^2.2.1",
     "eslint": "^2.13.1",
-    "eslint-config-airbnb-base": "^3.0.1",
-    "eslint-html-reporter": "^0.5.2",
-    "eslint-plugin-import": "^1.8.1",
-    "eslint-teamcity": "^1.1.0",
+    "eslint-config-bitnami": "bitnami/eslint-config-bitnami#v1.0.0",
+    "eslint-plugin-import": "^1.14.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-eslint": "^2.0.0",
-    "gulp-istanbul": "^1.0.0",
-    "gulp-mocha": "^2.2.0",
-    "gulp-replace": "^0.5.4",
-    "istanbul": "^0.4.4",
-    "mocha": "^2.5.3",
-    "mocha-teamcity-cov-reporter": "^0.0.1",
-    "mocha-teamcity-reporter": "^1.0.0",
     "nami-test": "^0.0.1",
-    "run-sequence": "^1.2.1",
-    "tmp": "^0.0.28"
+    "run-sequence": "^1.2.2",
+    "tmp": "0.0.28"
   }
 }
