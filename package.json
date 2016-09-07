@@ -35,7 +35,7 @@
     "xregexp": "^3.1.1"
   },
   "devDependencies": {
-    "bitnami-gulp-common-tasks": "bitnami/gulp-common-tasks#v2.0.1",
+    "bitnami-gulp-common-tasks": "bitnami/gulp-common-tasks#v2.0.2",
     "chai": "^3.5.0",
     "chai-fs": "git+https://github.com/bitnami/chai-fs.git",
     "eslint": "^2.13.1",
