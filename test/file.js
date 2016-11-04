@@ -601,6 +601,30 @@ describe('$file pkg', function() {
           expect(testFile).to.have.content(addition);
         });
       });
+      describe('#prepend()', function() {
+        beforeEach(function() {
+          s.createFilesFromManifest({
+            'file.txt': 'First line.'
+          });
+        });
+        it('Prepends text to existing files', function() {
+          const testFile = s.normalize('file.txt');
+          let readData = s.read(testFile);
+          const addition = 'Second line.\nThird!';
+          $file.prepend(testFile, addition);
+          const expected = `${addition}${readData}`;
+          readData = s.read(testFile);
+          expect(readData).to.be.eql(expected);
+        });
+        it('Prepends text to non-existing files', function() {
+          const testFile = s.normalize('non-existing.txt');
+          const addition = 'Some text';
+          expect(testFile).not.to.be.a.path();
+          $file.prepend(testFile, addition);
+          expect(testFile).to.be.a.path();
+          expect(testFile).to.have.content(addition);
+        });
+      });
       describe('#puts()', function() {
         beforeEach(function() {
           s.createFilesFromManifest({
