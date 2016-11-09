@@ -1761,6 +1761,321 @@ describe('$file pkg', function() {
           });
         });
       });
+      describe('$file.yaml', function() {
+        beforeEach(function() {
+          const yamlData = fs.readFileSync(path.join(__dirname, './data/sample.yml'), 'utf8');
+          s.createFilesFromManifest({
+            'sample_dir': {'properties.yaml': yamlData}
+          });
+        });
+        describe('#get()', function() {
+          it('Convert all the file to an object', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            const content = {
+              'boolean': true, 'field1': 'content1',
+              'field2': {
+                'subfield1': 'item5',
+                'subfield2': 'item6',
+                'subfield3': 'item7'
+              },
+              'field3': [{
+                'subfield4': 'item8',
+                'subfield5': 'item9'
+              }, {
+                'subfield6': 'item10',
+                'subfield7': 'item11'
+              }],
+              'field4': {
+                'subfield8': 'item12',
+                'subfield9': {
+                  'subsubfield1': 'item13'
+                }
+              },
+              'float': 123.4, 'integer': 123, 'list1': [
+                'item1',
+                'item2'
+              ],
+              'list2': [
+                'item3',
+                'item4'
+              ],
+              'string': 'example'
+            };
+
+            expect($file.yaml.get(testFile, null)).to.be.eql(content);
+            expect($file.yaml.get(testFile)).to.be.eql(content);
+            expect($file.yaml.get(testFile, '/')).to.be.eql(content);
+          });
+          it('Returns default value when key not exists', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            expect($file.yaml.get(testFile, 'nonexisting')).to.be.eql('');
+            expect($file.yaml.get(testFile, 'nonexisting', {'default': 'not defined'})).to.be.eql('not defined');
+          });
+          it('Gets lists, dictionaries and combinations of them', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            _.each({
+              'field1': 'content1',
+              'field2': {'subfield1': 'item5', 'subfield2': 'item6', 'subfield3': 'item7'},
+              'field3': [{'subfield4': 'item8', 'subfield5': 'item9'}, {'subfield6': 'item10', 'subfield7': 'item11'}],
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4']
+            }, function(expected, field) {
+              expect($file.yaml.get(testFile, field)).to.be.eql(expected);
+            });
+          });
+          it('Gets inner keys', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            _.each({
+              'field2/subfield1': 'item5',
+              '/field2/subfield1': 'item5',
+              'field4/subfield9/subsubfield1': 'item13',
+              '/field4/subfield9/subsubfield1': 'item13',
+              'subfield1': ''
+            }, function(expected, field) {
+              expect($file.yaml.get(testFile, field)).to.be.eql(expected);
+            });
+
+            expect(function() {
+              $file.yaml.get(testFile, '/field1/subfield1');
+            }).to.throw(Error);
+          });
+          it('Infers types', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            _.each({
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(expected, field) {
+              expect($file.yaml.get(testFile, field)).to.be.eql(expected);
+            });
+          });
+        });
+        describe('#set()', function() {
+          it('Adds parameter to root', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            _.each({
+              'newParameter1': 'this.is.a.new.parameter',
+              'newParameter2': {'subfield1': 'value', 'subfield2': 'anothervalue'},
+              'newParameter3': [
+                {'subfield1': 'value', 'subfield2': 'value2'},
+                {'subfield3': 'value3', 'subfield4': 'value4'}
+              ]
+            }, function(value, parameter) {
+              $file.yaml.set(testFile, parameter, value);
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(value);
+            });
+
+            // Check previous information is still there
+            _.each({
+              'field1': 'content1',
+              'field2': {'subfield1': 'item5', 'subfield2': 'item6', 'subfield3': 'item7'},
+              'field3': [{'subfield4': 'item8', 'subfield5': 'item9'}, {'subfield6': 'item10', 'subfield7': 'item11'}],
+              'field4': {'subfield8': 'item12', 'subfield9': {'subsubfield1': 'item13'}},
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4'],
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(value, parameter) {
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(value);
+            });
+          });
+          it('Updates value on root', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            _.each({
+              'field1': 'new.value',
+              'field2': 987,
+              'field3': {'key': 'value'}
+            }, function(value, parameter) {
+              $file.yaml.set(testFile, parameter, value);
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(value);
+            });
+
+            // Check previous information is still there
+            _.each({
+              'field4': {'subfield8': 'item12', 'subfield9': {'subsubfield1': 'item13'}},
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4'],
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(value, parameter) {
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(value);
+            });
+          });
+          it('Adds inner key', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+            const param1 = 'field1';
+            const param2 = 'field2';
+            const param3 = 'field3';
+            const subparam = 'subfield0';
+            const value = 'value2';
+
+            expect(function() {
+              $file.yaml.set(testFile, `${param1}/${subparam}`, value);
+            }).to.throw(Error);
+            expect($file.yaml.get(testFile, param1)).to.be.eql('content1');
+
+            expect(function() {
+              $file.yaml.set(testFile, [param1, subparam], value);
+            }).to.throw(Error);
+            expect($file.yaml.get(testFile, param1)).to.be.eql('content1');
+
+            $file.yaml.set(testFile, `${param2}/${subparam}`, value);
+            expect($file.yaml.get(testFile, param2)).to.be.eql({
+              'subfield1': 'item5',
+              'subfield2': 'item6',
+              'subfield3': 'item7',
+              [subparam]: value}
+            );
+
+            expect(function() {
+              $file.yaml.set(testFile, `${param3}/${subparam}`, value);
+            }).to.throw(Error);
+            expect($file.yaml.get(testFile, param3)).to.be.eql(
+              [
+                {'subfield4': 'item8', 'subfield5': 'item9'},
+                {'subfield6': 'item10', 'subfield7': 'item11'}
+              ]
+            );
+
+            // Check previous information is still there
+            _.each({
+              'field4': {'subfield8': 'item12', 'subfield9': {'subsubfield1': 'item13'}},
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4'],
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(val, parameter) {
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(val);
+            });
+          });
+          it('Replaces inner key', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+            const key = 'field2/subfield1';
+            const value = 'value';
+
+            $file.yaml.set(testFile, key, value);
+            expect($file.yaml.get(testFile, key)).to.be.eql(value);
+
+            // Check previous information is still there
+            _.each({
+              'field1': 'content1',
+              'field3': [{'subfield4': 'item8', 'subfield5': 'item9'}, {'subfield6': 'item10', 'subfield7': 'item11'}],
+              'field4': {'subfield8': 'item12', 'subfield9': {'subsubfield1': 'item13'}},
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4'],
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(val, parameter) {
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(val);
+            });
+          });
+          it('Replaces inner key (starting key with \'/\')', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+            const key = '/field2/subfield1';
+            const value = 'value';
+
+            $file.yaml.set(testFile, key, value);
+            expect($file.yaml.get(testFile, key)).to.be.eql(value);
+
+            // Check previous information is still there
+            _.each({
+              'field1': 'content1',
+              'field3': [{'subfield4': 'item8', 'subfield5': 'item9'}, {'subfield6': 'item10', 'subfield7': 'item11'}],
+              'field4': {'subfield8': 'item12', 'subfield9': {'subsubfield1': 'item13'}},
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4'],
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(val, parameter) {
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(val);
+            });
+          });
+          it('Adds keymap', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+            const newfield = 'km';
+            const newvalue = {'km31': 0, 'km32': [0, 1, 2, 3]};
+            const existingField = 'field1';
+            const updatedValue = 'othervalue';
+            const keymap = {[newfield]: newvalue, [existingField]: updatedValue};
+
+            $file.yaml.set(testFile, keymap);
+            expect($file.yaml.get(testFile, newfield)).to.be.eql(newvalue);
+            expect($file.yaml.get(testFile, existingField)).to.be.eql(updatedValue);
+
+            $file.yaml.set(testFile, keymap, {'retryOnENOENT': true});
+            expect($file.yaml.get(testFile, newfield)).to.be.eql(newvalue);
+            expect($file.yaml.get(testFile, existingField)).to.be.eql(updatedValue);
+
+            // Check previous information is still there
+            _.each({
+              'field3': [{'subfield4': 'item8', 'subfield5': 'item9'}, {'subfield6': 'item10', 'subfield7': 'item11'}],
+              'field4': {'subfield8': 'item12', 'subfield9': {'subsubfield1': 'item13'}},
+              'list1': ['item1', 'item2'],
+              'list2': ['item3', 'item4'],
+              'integer': 123,
+              'float': 123.4,
+              'boolean': true,
+              'string': 'example'
+            }, function(val, parameter) {
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(val);
+            });
+          });
+          it('Creates a file if it does not exist', function() {
+            const testFile = s.normalize('sample_dir/propertiesNew.yaml');
+
+            _.each({
+              'newparameter1': 'this.is.a.new.parameter',
+              'newparameter2': {'subfield1': 'value', 'subfield2': 'anothervalue'},
+              'newparameter3': [
+                {'subfield1': 'value', 'subfield2': 'value2'},
+                {'subfield3': 'value3', 'subfield4': 'value4'}
+              ]
+            }, function(val, parameter) {
+              $file.yaml.set(testFile, parameter, val);
+              expect($file.yaml.get(testFile, parameter)).to.be.eql(val);
+            });
+          });
+          it('Throw exception if wrong parameters', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            expect(function() {
+              $file.yaml.set(testFile, {field1: 'value1'}, 'value', {'retryOnENOENT': true});
+            }).to.throw(Error);
+
+            expect(function() {
+              $file.yaml.set(testFile);
+            }).to.throw(Error);
+
+            expect(function() {
+              $file.yaml.set(testFile, 123, 'value', {'retryOnENOENT': true});
+            }).to.throw(Error);
+          });
+          it('Throw exception if key in array format is incorrect', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+            expect(function() {
+              $file.yaml.set(testFile, ['field2', 2, 'subsubfield1'], 'value', {'retryOnENOENT': true});
+            }).to.throw(Error);
+          });
+        });
+      });
 
       if (os.platform !== 'win32' && !process.getuid()) {
         describe('#chown()', function() {
