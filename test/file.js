@@ -1763,8 +1763,9 @@ describe('$file pkg', function() {
       });
       describe('$file.yaml', function() {
         beforeEach(function() {
+          const yamlData = fs.readFileSync(path.join(__dirname, './data/sample.yml'), 'utf8');
           s.createFilesFromManifest({
-            'sample_dir': {'properties.yaml': 'field1: content1\nfield2:\n  subfield1: item5\n  subfield2: item6\n  subfield3: item7\nfield3:\n    - subfield4: item8\n      subfield5: item9\n    - subfield6: item10\n      subfield7: item11\nfield4:\n  subfield8: item12\n  subfield9:\n    subsubfield1: item13\nlist1: [item1, item2]\nlist2:\n  - item3\n  - item4\n\ninteger: 123\nfloat: 123.4\nboolean: True\nstring: "example"\n'}
+            'sample_dir': {'properties.yaml': yamlData}
           });
         });
         describe('#get()', function() {
