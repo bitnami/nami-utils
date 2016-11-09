@@ -1,6 +1,6 @@
 {
   "name": "nami-utils",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Utility functions for Nami",
   "repository": {
     "type": "git",
@@ -32,7 +32,8 @@
     "temporary": "^0.0.8",
     "xmldom": "^0.1.22",
     "xpath": "^0.0.23",
-    "xregexp": "^3.1.1"
+    "xregexp": "^3.1.1",
+    "js-yaml": "^3.5.2"
   },
   "devDependencies": {
     "bitnami-gulp-common-tasks": "bitnami/gulp-common-tasks#v2.0.2",
