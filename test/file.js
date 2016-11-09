@@ -1863,7 +1863,10 @@ describe('$file pkg', function() {
             _.each({
               'newParameter1': 'this.is.a.new.parameter',
               'newParameter2': {'subfield1': 'value', 'subfield2': 'anothervalue'},
-              'newParameter3': [{'subfield1': 'value', 'subfield2': 'value2'}, {'subfield3': 'value3', 'subfield4': 'value4'}]
+              'newParameter3': [
+                {'subfield1': 'value', 'subfield2': 'value2'},
+                {'subfield3': 'value3', 'subfield4': 'value4'}
+              ]
             }, function(value, parameter) {
               $file.yaml.set(testFile, parameter, value);
               expect($file.yaml.get(testFile, parameter)).to.be.eql(value);
@@ -1919,7 +1922,7 @@ describe('$file pkg', function() {
             const value = 'value2';
 
             expect(function() {
-              $file.yaml.set(testFile, param1 + '/' + subparam, value);
+              $file.yaml.set(testFile, `${param1}/${subparam}`, value);
             }).to.throw(Error);
             expect($file.yaml.get(testFile, param1)).to.be.eql('content1');
 
@@ -1928,13 +1931,23 @@ describe('$file pkg', function() {
             }).to.throw(Error);
             expect($file.yaml.get(testFile, param1)).to.be.eql('content1');
 
-            $file.yaml.set(testFile, param2 + '/' + subparam, value);
-            expect($file.yaml.get(testFile, param2)).to.be.eql({'subfield1': 'item5', 'subfield2': 'item6', 'subfield3': 'item7', [subparam]: value});
+            $file.yaml.set(testFile, `${param2}/${subparam}`, value);
+            expect($file.yaml.get(testFile, param2)).to.be.eql({
+              'subfield1': 'item5',
+              'subfield2': 'item6',
+              'subfield3': 'item7',
+              [subparam]: value}
+            );
 
             expect(function() {
-              $file.yaml.set(testFile, param3 + '/' + subparam, value);
+              $file.yaml.set(testFile, `${param3}/${subparam}`, value);
             }).to.throw(Error);
-            expect($file.yaml.get(testFile, param3)).to.be.eql([{'subfield4': 'item8', 'subfield5': 'item9'}, {'subfield6': 'item10', 'subfield7': 'item11'}]);
+            expect($file.yaml.get(testFile, param3)).to.be.eql(
+              [
+                {'subfield4': 'item8', 'subfield5': 'item9'},
+                {'subfield6': 'item10', 'subfield7': 'item11'}
+              ]
+            );
 
             // Check previous information is still there
             _.each({
@@ -2031,7 +2044,10 @@ describe('$file pkg', function() {
             _.each({
               'newparameter1': 'this.is.a.new.parameter',
               'newparameter2': {'subfield1': 'value', 'subfield2': 'anothervalue'},
-              'newparameter3': [{'subfield1': 'value', 'subfield2': 'value2'}, {'subfield3': 'value3', 'subfield4': 'value4'}]
+              'newparameter3': [
+                {'subfield1': 'value', 'subfield2': 'value2'},
+                {'subfield3': 'value3', 'subfield4': 'value4'}
+              ]
             }, function(val, parameter) {
               $file.yaml.set(testFile, parameter, val);
               expect($file.yaml.get(testFile, parameter)).to.be.eql(val);
