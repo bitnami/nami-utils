@@ -1,0 +1,23 @@
+field1: content1
+field2:
+  subfield1: item5
+  subfield2: item6
+  subfield3: item7
+field3:
+    - subfield4: item8
+      subfield5: item9
+    - subfield6: item10
+      subfield7: item11
+field4:
+  subfield8: item12
+  subfield9:
+    subsubfield1: item13
+list1: [item1, item2]
+list2:
+  - item3
+  - item4
+
+integer: 123
+float: 123.4
+boolean: True
+string: "example"
