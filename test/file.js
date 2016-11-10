@@ -397,6 +397,18 @@ describe('$file pkg', function() {
           expected = 'REPLACE ##SUBSTITUTED_STRING##';
           expect(expected).to.be.eql(readData);
         });
+        it('Only follows symlinks in a directory if followSymLinks is true', function() {
+          const dir = s.normalize('sample_dir/other_dir');
+          const file = s.normalize('sample_dir/file.txt');
+          const link = s.normalize(path.join(dir, 'linktofile'));
+          $file.link(file, link);
+
+          $file.substitute(dir, '@@TARGET_STRING@@', '##SUBSTITUTED_STRING##', {recursive: true});
+          expect('Some text... @@TARGET_STRING@@ ...the end').to.be.eql(s.read(link));
+
+          $file.substitute(dir, '@@TARGET_STRING@@', '##SUBSTITUTED_STRING##', {recursive: true, followSymLinks: true});
+          expect('Some text... ##SUBSTITUTED_STRING## ...the end').to.be.eql(s.read(file));
+        });
         it('Allows excluding files from the substitutions', function() {
           s.createFilesFromManifest({
             exlusion_test: {
