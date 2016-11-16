@@ -29,7 +29,6 @@
     "stack-trace": "^0.0.9",
     "strftime": "^0.9.2",
     "tail": "^1.2.0",
-    "temporary": "^0.0.8",
     "xmldom": "^0.1.22",
     "xpath": "^0.0.23",
     "xregexp": "^3.1.1",
