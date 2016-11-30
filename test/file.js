@@ -1382,11 +1382,15 @@ describe('$file pkg', function() {
           });
         });
         it('Creates backups of files', function() {
-          const testFile = s.normalize('sample_dir/file.dat');
-          $file.backup(testFile);
+          const tail = 'file.dat';
+          const testFile = s.normalize(`sample_dir/${tail}`);
+          const backupFile = $file.backup(testFile);
+          expect(path.basename(backupFile)).to.match(new RegExp(`^${tail}_\\d+$`));
+          expect(backupFile).to.be.a.file().and.equal(testFile);
           $file.delete(testFile);
-          const success = _.size($file.glob(`${testFile}*`));
-          expect(success).to.be.eql(1);
+          // Make sure they are not the same file
+          expect(testFile).to.not.be.a.path();
+          expect(backupFile).to.be.a.file();
         });
       });
       describe('File ownership', function() {
