@@ -723,31 +723,30 @@ describe('$file pkg', function() {
           expect(newFileList.length).to.be.eql(1);
         });
         it('The loop is only aborted if maxDepth is reached', function() {
-          const testDir = s.normalize('sample_dir');
-          const maxDepthFiles = s.createFilesFromManifest({
-            sample_dir: {
-              'a.txt': 'foo',
+          const depthTestFiles = s.createFilesFromManifest({
+            depth_test: {
+              'a': '',
               'b': {},
               'c': {
-                'd': 'bar',
+                'd': '',
                 'e': {
-                  'f': 'test'
+                  'f': ''
                 }
               }
             }
-          }).sort();
-          const fileListDepth = [
-            [maxDepthFiles[0]],        // Depth 0
-            maxDepthFiles.slice(0, 4), // Depth 1
-            maxDepthFiles.slice(0, 6), // Depth 2
-            maxDepthFiles              // Depth 3
-          ];
+          });
+          const testDir = s.normalize('depth_test');
+          const baseDirDepth = depthTestFiles[0].split(path.sep).length;
           for (let i = 0; i <= 3; i++) {
             const fileList = [];
             $file.walkDir(testDir, function(file) {
               fileList.push(file);
             }, {maxDepth: i});
-            expect(fileList.sort()).to.be.eql(fileListDepth[i]);
+            expect(fileList.sort()).to.be.eql(
+              _.filter(depthTestFiles, testFilePath => {
+                return testFilePath.split(path.sep).length <= baseDirDepth + i;
+              }), `Failed to walk through files with maximum length of ${i}`
+            );
           }
         });
         it('The loop is only aborted for a exact \'false\' boolean value', function() {
