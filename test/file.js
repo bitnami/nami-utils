@@ -722,6 +722,34 @@ describe('$file pkg', function() {
           });
           expect(newFileList.length).to.be.eql(1);
         });
+        it('The loop is only aborted if maxDepth is reached', function() {
+          const testDir = s.normalize('sample_dir');
+          const maxDepthFiles = s.createFilesFromManifest({
+            sample_dir: {
+              'a.txt': 'foo',
+              'b': {},
+              'c': {
+                'd': 'bar',
+                'e': {
+                  'f': 'test'
+                }
+              }
+            }
+          }).sort();
+          const fileListDepth = [
+            [maxDepthFiles[0]],        // Depth 0
+            maxDepthFiles.slice(0, 4), // Depth 1
+            maxDepthFiles.slice(0, 6), // Depth 2
+            maxDepthFiles              // Depth 3
+          ];
+          for (let i = 0; i <= 3; i++) {
+            const fileList = [];
+            $file.walkDir(testDir, function(file) {
+              fileList.push(file);
+            }, {maxDepth: i});
+            expect(fileList.sort()).to.be.eql(fileListDepth[i]);
+          }
+        });
         it('The loop is only aborted for a exact \'false\' boolean value', function() {
           _.each([null, undefined, 0, '', true, 'test'], function(returnValue) {
             const elements = [];
