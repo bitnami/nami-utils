@@ -722,6 +722,33 @@ describe('$file pkg', function() {
           });
           expect(newFileList.length).to.be.eql(1);
         });
+        it('The loop is only aborted if maxDepth is reached', function() {
+          const depthTestFiles = s.createFilesFromManifest({
+            depth_test: {
+              'a': '',
+              'b': {},
+              'c': {
+                'd': '',
+                'e': {
+                  'f': ''
+                }
+              }
+            }
+          });
+          const testDir = s.normalize('depth_test');
+          const baseDirDepth = testDir.split(path.sep).length;
+          for (let i = 0; i <= 3; i++) {
+            const fileList = [];
+            $file.walkDir(testDir, function(file) {
+              fileList.push(file);
+            }, {maxDepth: i});
+            expect(fileList.sort()).to.be.eql(
+              _.filter(depthTestFiles, testFilePath => {
+                return testFilePath.split(path.sep).length <= baseDirDepth + i;
+              }), `Failed to walk through files with maximum length of ${i}`
+            );
+          }
+        });
         it('The loop is only aborted for a exact \'false\' boolean value', function() {
           _.each([null, undefined, 0, '', true, 'test'], function(returnValue) {
             const elements = [];
