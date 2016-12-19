@@ -736,7 +736,7 @@ describe('$file pkg', function() {
             }
           });
           const testDir = s.normalize('depth_test');
-          const baseDirDepth = depthTestFiles[0].split(path.sep).length;
+          const baseDirDepth = testDir.split(path.sep).length;
           for (let i = 0; i <= 3; i++) {
             const fileList = [];
             $file.walkDir(testDir, function(file) {
