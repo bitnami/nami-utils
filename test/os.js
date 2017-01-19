@@ -525,10 +525,20 @@ process.on('message', function() {
         }
       }
     }
-
+    function runWithSysPath(fn, sysPath) {
+      const oldPATH = process.env.PATH;
+      let result = null;
+      try {
+        process.env.PATH = sysPath;
+        result = fn();
+      } finally {
+        process.env.PATH = oldPATH;
+      }
+      return result;
+    }
     rootDescribe('#deleteGroup()', function() {
       let group = null;
-      before(function() {
+      beforeEach(function() {
         group = `hp_test_group_${_.random('10000', '100000')}`;
         if (_commandExists('groupadd')) {
           execSync(`groupadd ${group}`);
@@ -536,12 +546,18 @@ process.on('message', function() {
           execSync(`addgroup ${group}`);
         }
       });
-      rootIt('Deletes a group', function() {
+      it('Deletes a group', function() {
         expect(groupExists(group)).to.be.eql(true);
         $os.deleteGroup(group);
         expect(groupExists(group)).to.be.eql(false);
       });
-      after(function() {
+      it('Works regardless of a broken PATH', function() {
+        expect(groupExists(group)).to.be.eql(true);
+        runWithSysPath(() => $os.deleteGroup(group), '');
+        expect(groupExists(group)).to.be.eql(false);
+      });
+
+      afterEach(function() {
         try {
           if (_commandExists('groupdel')) {
             execSync(`groupdel ${group}  2>/dev/null`);
@@ -555,13 +571,21 @@ process.on('message', function() {
     });
     rootDescribe('#addGroup()', function() {
       let group = null;
-      it('Adds a group', function() {
+      beforeEach(function() {
         group = `hp_test_group_${_.random('10000', '100000')}`;
+      });
+      it('Adds a group', function() {
         expect(groupExists(group)).to.be.eql(false);
         $os.addGroup(group);
         expect(groupExists(group)).to.be.eql(true);
       });
-      after(function() {
+      it('Works regardless of a broken PATH', function() {
+        expect(groupExists(group)).to.be.eql(false);
+        runWithSysPath(() => $os.addGroup(group), '');
+        expect(groupExists(group)).to.be.eql(true);
+      });
+
+      afterEach(function() {
         try {
           if (_commandExists('groupdel')) {
             execSync(`groupdel ${group}  2>/dev/null`);
@@ -589,6 +613,12 @@ process.on('message', function() {
         expect(userExists(user)).to.be.eql(true);
         expect(parseInt(execSync(`id -u ${user}`), 10)).to.be.within(100, 999);
       });
+      rootIt('Works regardless of a broken PATH', function() {
+        expect(userExists(user)).to.be.eql(false);
+        runWithSysPath(() => $os.addUser(user), '');
+        expect(userExists(user)).to.be.eql(true);
+      });
+
       afterEach(function() {
         try {
           if (_commandExists('userdel')) {
@@ -603,7 +633,7 @@ process.on('message', function() {
     });
     rootDescribe('#deleteUser()', function() {
       let user = null;
-      before(function() {
+      beforeEach(function() {
         user = `hp_test_user_${_.random('10000', '100000')}`;
         if (_commandExists('useradd')) {
           execSync(`useradd ${user}`);
@@ -611,12 +641,18 @@ process.on('message', function() {
           execSync(`adduser -D ${user}`);
         }
       });
-      rootIt('Deletes an user', function() {
+      it('Deletes an user', function() {
         expect(userExists(user)).to.be.eql(true);
         $os.deleteUser(user);
         expect(userExists(user)).to.be.eql(false);
       });
-      after(function() {
+      it('Works regardless of a broken PATH', function() {
+        expect(userExists(user)).to.be.eql(true);
+        runWithSysPath(() => $os.deleteUser(user), '');
+        expect(userExists(user)).to.be.eql(false);
+      });
+
+      afterEach(function() {
         try {
           if (_commandExists('userdel')) {
             execSync(`userdel ${user}  2>/dev/null`);
