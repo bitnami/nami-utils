@@ -742,7 +742,7 @@ for i in ${_.range(1, 300).join(' ')}; do sleep 0.01; done
     createTempDir: 'directory'
   }, function(type, fnName) {
     const fnToTest = $os[fnName];
-    describe.only(`#${fnName}()`, function() {
+    describe(`#${fnName}()`, function() {
       let tempFiles = [];
       beforeEach(function() {
         tempFiles = [];
