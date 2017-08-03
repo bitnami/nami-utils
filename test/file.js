@@ -1898,6 +1898,16 @@ describe('$file pkg', function() {
               expect($file.yaml.get(testFile, field)).to.be.eql(expected);
             });
           });
+          it('Accesses arrays by index', function() {
+            const testFile = s.normalize('sample_dir/properties.yaml');
+
+            _.each({
+              'list2[0]': 'item3',
+              'list2[1]': 'item4',
+            }, function(expected, field) {
+              expect($file.yaml.get(testFile, field)).to.be.eql(expected);
+            });
+          });
         });
         describe('#set()', function() {
           it('Adds parameter to root', function() {
