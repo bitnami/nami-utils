@@ -214,12 +214,43 @@ describe('Lodash Extra', function() {
     it('#uniq()', function() {
       expect($ld.uniq([2, 1, 2])).to.be.eql([2, 1]);
     });
+    it('#contains()', function() {
+      expect($ld.contains([1, 2, 3], 1)).to.be.eql(true);
+      expect($ld.contains([1, 2, 3], 1, 2)).to.be.eql(false);
+      expect($ld.contains({user: 'fred', age: 40}, 'fred')).to.be.eql(true);
+      expect($ld.contains('hello', 'el')).to.be.eql(true);
+      expect($ld.contains('hello', 'elo')).to.be.eql(false);
+    });
+    it('#pluck()', function() {
+      const objects = [{
+        name: 'foo', company: 'bitnami'
+      }, {
+        name: 'bar', company: 'bitrock'
+      }];
+      expect($ld.pluck(objects, 'name')).to.be.eql(['foo', 'bar']);
+    });
+    it('#pick()', function() {
+      const object = {a: 1, b: 2, c: 3, d: 4};
+      expect($ld.pick(object, 'a')).to.be.eql({a: 1});
+      expect($ld.pick(object, 'a', 'c')).to.be.eql({a: 1, c: 3});
+      expect($ld.pick(object, ['a', 'd'], 'c')).to.be.eql({a: 1, c: 3, d: 4});
+      expect($ld.pick(object, function(num) {
+        return num === 1 || num === 3;
+      })).to.be.eql({a: 1, c: 3});
+    });
     it('#uniqBy()', function() {
       expect($ld.uniqBy([2.1, 1.2, 2.3], Math.floor)).to.be.eql([2.1, 1.2]);
     });
     it('#any()', function() {
       expect($ld.any([null, 0, 'yes', false], Boolean)).to.be.eql(true);
       expect($ld.any([null, 0, '', false], Boolean)).to.be.eql(false);
+      const psOutput = [{
+        user: 'daemon', cmd: 'httpd', pid: 43
+      }, {
+        user: 'daemon', cmd: 'httpd', pid: 44
+      }];
+      expect($ld.any(psOutput, 'user', 'root')).to.be.eql(false);
+      expect($ld.any(psOutput, 'user', 'daemon')).to.be.eql(true);
     });
 
     it('#identity()', function() {
@@ -238,19 +269,45 @@ describe('Lodash Extra', function() {
       expect($ld.endsWith('abc', 'b')).to.be.eql(false);
       expect($ld.endsWith('abc', 'b', 2)).to.be.eql(true);
     });
-    it('#trimStart()', function() {
-      const expected = 'abc  ';
-      expect($ld.trimStart(expected)).to.be.eql(expected);
-      expect($ld.trimStart(` ${expected}`)).to.be.eql(expected);
-      expect($ld.trimStart(`   ${expected}`)).to.be.eql(expected);
-      expect($ld.trimStart(`\n \n ${expected}`)).to.be.eql(expected);
+    _.each({
+      '#trimStart()': $ld.trimStart, '#trimLeft()': $ld.trimLeft,
+    }, (fn, title) => {
+      it(title, function() {
+        const expected = 'abc  ';
+        expect(fn(expected)).to.be.eql(expected);
+        expect(fn(` ${expected}`)).to.be.eql(expected);
+        expect(fn(`   ${expected}`)).to.be.eql(expected);
+        expect(fn(`\n \n ${expected}`)).to.be.eql(expected);
+      });
     });
-    it('#trimEnd()', function() {
+    _.each({
+      '#trimEnd()': $ld.trimEnd, '#trimRight()': $ld.trimRight,
+    }, (fn, title) => {
       const expected = '  abc';
-      expect($ld.trimEnd(expected)).to.be.eql(expected);
-      expect($ld.trimEnd(`${expected} `)).to.be.eql(expected);
-      expect($ld.trimEnd(`${expected}   `)).to.be.eql(expected);
-      expect($ld.trimEnd(`${expected}\n \n `)).to.be.eql(expected);
+      it(title, function() {
+        expect(fn(expected)).to.be.eql(expected);
+        expect(fn(`${expected} `)).to.be.eql(expected);
+        expect(fn(`${expected}   `)).to.be.eql(expected);
+        expect(fn(`${expected}\n \n `)).to.be.eql(expected);
+      });
+    });
+    _.each({
+      '#padStart()': $ld.padStart, '#padLeft()': $ld.padLeft,
+    }, (fn, title) => {
+      it(title, function() {
+        expect(fn('abc', 6)).to.be.eql('   abc');
+        expect(fn('abc', 6, '_-')).to.be.eql('_-_abc');
+        expect(fn('abc', 3)).to.be.eql('abc');
+      });
+    });
+    _.each({
+      '#padEnd()': $ld.padEnd, '#padRight()': $ld.padRight,
+    }, (fn, title) => {
+      it(title, function() {
+        expect(fn('abc', 6)).to.be.eql('abc   ');
+        expect(fn('abc', 6, '_-')).to.be.eql('abc_-_');
+        expect(fn('abc', 3)).to.be.eql('abc');
+      });
     });
   });
 });
