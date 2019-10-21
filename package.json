@@ -37,7 +37,7 @@
     "bitnami-gulp-common-tasks": "bitnami/gulp-common-tasks#v2.0.2",
     "chai": "^3.5.0",
     "chai-fs": "^1.0.0",
-    "eslint": "^2.13.1",
+    "eslint": "^6.5.1",
     "eslint-config-bitnami": "bitnami/eslint-config-bitnami#v1.0.0",
     "eslint-plugin-import": "^1.14.0",
     "gulp": "^3.9.1",
