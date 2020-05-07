@@ -149,10 +149,10 @@ process.on('message', function() {
       });
     });
     it('Do not reports any default stderr message if the process did not write to it when retrieving std streams',
-       function() {
-         expect($os.runProgram('exit', '2', {retrieveStdStreams: true})).to.eql({stderr: '', stdout: '', code: 2});
-       }
-      );
+      function() {
+        expect($os.runProgram('exit', '2', {retrieveStdStreams: true})).to.eql({stderr: '', stdout: '', code: 2});
+      }
+    );
     describe('Std streams handing', function() {
       let sb = null;
       beforeEach(function() {
@@ -191,7 +191,7 @@ process.on('message', function() {
     });
     rootDescribe('Running programs as different users', function() {
       function parseIdOutput(text) {
-        const idParseRe = /^uid=(\d+)\(([^\)]+)\)\s+gid=(\d+)\(([^\)]+)\)/;
+        const idParseRe = /^uid=(\d+)\(([^)]+)\)\s+gid=(\d+)\(([^)]+)\)/;
         const match = text.match(idParseRe);
         const uid = parseInt(match[1], 10);
         const username = match[2];
@@ -314,10 +314,10 @@ process.on('message', function() {
       const script = sb.normalize('sample_dir/script');
       let output = '';
       const handler = $os.spawnAsync('sh', [script], {wait: true,
-                                      onStdout: (data) => {
-                                        output += data.toString();
-                                      }
-                                     });
+        onStdout: (data) => {
+          output += data.toString();
+        }
+      });
       expect(handler.stdout).to.be.eql(output);
     });
     it('Allows to execute commands from a specified directory', function() {
@@ -488,7 +488,7 @@ process.on('message', function() {
   describe('#findGroup()', function() {
     it('Return group data', function() {
       const idData = execSync('id').toString().trim();
-      const match = idData.match(/groups=(\d+)\(([^\)]+)\)/);
+      const match = idData.match(/groups=(\d+)\(([^)]+)\)/);
       const groupName = match[2];
       const grpupId = parseInt(match[1], 10);
       expect($os.findGroup(groupName)).to.be.eql({name: groupName, id: grpupId});
@@ -696,6 +696,7 @@ for i in ${_.range(1, 300).join(' ')}; do sleep 0.01; done
 `, {mode: '0755'});
       return spawn(script);
     }
+    /* eslint-disable no-unused-vars */
     it('Sends signals to a running process', function(done) {
       let receivedText = '';
       const signal = 6;
@@ -725,6 +726,7 @@ for i in ${_.range(1, 300).join(' ')}; do sleep 0.01; done
         $os.kill(child.pid, 'SIGKILL');
       }, 200);
     });
+    /* eslint-enable no-unused-vars */
   });
   describe('#runningAsRoot()', function() {
     if (process.getuid() === 0) {
