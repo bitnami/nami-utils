@@ -43,7 +43,7 @@
     "eslint-plugin-import": "^1.14.0",
     "gulp": "^4.0.2",
     "gulp4-run-sequence": "^1.0.1",
-    "nami-test": "^0.1.0",
+    "nami-test": "^1.0.0",
     "tmp": "0.0.28"
   }
 }
