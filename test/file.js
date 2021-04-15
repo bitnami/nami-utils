@@ -40,7 +40,7 @@ function getCurrentDate() {
 describe('$file pkg', function() {
   function verifyBinaryData(read, expected) {
     // Compare base64 to avoid printing a binary to console if the test fails
-    expect(new Buffer(read).toString('base64')).to.be.eql(new Buffer(expected).toString('base64'));
+    expect(Buffer.from(read).toString('base64')).to.be.eql(Buffer.from(expected).toString('base64'));
   }
   _.each({
     '$file package non-contextified': false,
@@ -1290,7 +1290,7 @@ describe('$file pkg', function() {
           const destFile = s.normalize('destination.txt');
           $file.copy(originFile, destFile);
           // Compare base64 to avoid printing a binary to console if the test fails
-          expect(new Buffer(randomData).toString('base64')).to.be.eql(new Buffer(s.read(destFile)).toString('base64'));
+          expect(Buffer.from(randomData).toString('base64')).to.be.eql(Buffer.from(s.read(destFile)).toString('base64'));
         });
         it('Copies directories', function() {
           // We are generating a big chunck of random data, depending on the size may surpass the default timeout
@@ -1301,8 +1301,8 @@ describe('$file pkg', function() {
           const destDir = s.normalize('copied_dir');
           $file.copy(originDir, destDir);
           // Compare base64 to avoid printing a binary to console if the test fails
-          expect(new Buffer(randomData).toString('base64'))
-            .to.be.eql(new Buffer(s.read(`${destDir}/file.txt`)).toString('base64'));
+          expect(Buffer.from(randomData).toString('base64'))
+            .to.be.eql(Buffer.from(s.read(`${destDir}/file.txt`)).toString('base64'));
         });
         it('Uses patterns to exclude files from being copied.', function() {
           // We are generating a big chunck of random data, depending on the size may surpass the default timeout
@@ -1370,7 +1370,7 @@ describe('$file pkg', function() {
           const destFile = s.normalize('destination.txt');
           $file.rename(originFile, destFile);
           // Compare base64 to avoid printing a binary to console if the test fails
-          expect(new Buffer(randomData).toString('base64')).to.be.eql(new Buffer(s.read(destFile)).toString('base64'));
+          expect(Buffer.from(randomData).toString('base64')).to.be.eql(Buffer.from(s.read(destFile)).toString('base64'));
           expect(originFile).not.to.be.a.path();
         });
         it('Moves/renames directories', function() {
@@ -1383,8 +1383,8 @@ describe('$file pkg', function() {
           $file.rename(originDir, destDir);
           // Compare base64 to avoid printing a binary to console if the test fails
           expect(destDir).to.be.a.directory();
-          expect(new Buffer(randomData).toString('base64'))
-            .to.be.eql(new Buffer(s.read(`${destDir}/file.txt`)).toString('base64'));
+          expect(Buffer.from(randomData).toString('base64'))
+            .to.be.eql(Buffer.from(s.read(`${destDir}/file.txt`)).toString('base64'));
           expect(originDir).not.to.be.a.path();
           expect('${originFile}/file.txt').not.to.be.a.path();
         });
