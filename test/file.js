@@ -1290,7 +1290,8 @@ describe('$file pkg', function() {
           const destFile = s.normalize('destination.txt');
           $file.copy(originFile, destFile);
           // Compare base64 to avoid printing a binary to console if the test fails
-          expect(Buffer.from(randomData).toString('base64')).to.be.eql(Buffer.from(s.read(destFile)).toString('base64'));
+          expect(Buffer.from(randomData).toString('base64'))
+            .to.be.eql(Buffer.from(s.read(destFile)).toString('base64'));
         });
         it('Copies directories', function() {
           // We are generating a big chunck of random data, depending on the size may surpass the default timeout
@@ -1370,7 +1371,8 @@ describe('$file pkg', function() {
           const destFile = s.normalize('destination.txt');
           $file.rename(originFile, destFile);
           // Compare base64 to avoid printing a binary to console if the test fails
-          expect(Buffer.from(randomData).toString('base64')).to.be.eql(Buffer.from(s.read(destFile)).toString('base64'));
+          expect(Buffer.from(randomData).toString('base64'))
+            .to.be.eql(Buffer.from(s.read(destFile)).toString('base64'));
           expect(originFile).not.to.be.a.path();
         });
         it('Moves/renames directories', function() {
