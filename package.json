@@ -1,6 +1,6 @@
 {
   "name": "nami-utils",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Utility functions for Nami",
   "repository": {
     "type": "git",
@@ -39,11 +39,11 @@
     "chai": "^3.5.0",
     "chai-fs": "^1.0.0",
     "eslint": "^6.5.1",
-    "eslint-config-bitnami": "github:bitnami/eslint-config-bitnami#v1.0.0",
+    "eslint-config-bitnami": "git+https://git@github.com/bitnami/eslint-config-bitnami#v1.0.0",
     "eslint-plugin-import": "^1.14.0",
     "gulp": "^4.0.2",
     "gulp4-run-sequence": "^1.0.1",
-    "nami-test": "github:bitnami/nami-test#v1.0.1",
+    "nami-test": "git+https://git@github.com/bitnami/nami-test#v1.0.3",
     "tmp": "0.0.28"
   }
 }
