@@ -759,7 +759,7 @@ for i in ${_.range(1, 300).join(' ')}; do sleep 0.01; done
             _.each(tempFiles, f => expect(f).to.not.be.a.path());
           }
         },
-        'Allows marking the temportary paths to not be deleted': {
+        'Allows marking the temporary paths to not be deleted': {
           options: {cleanup: false},
           onExitValidation: function() {
             _.each(tempFiles, f => expect(f).to.be.a[type]());
@@ -767,17 +767,38 @@ for i in ${_.range(1, 300).join(' ')}; do sleep 0.01; done
         }
       }, function(testData, title) {
         it(title, function() {
+          const createSeveralTemp = function createSeveralTemp(times) {
+            _.times(times, function() {
+              const f = fnToTest(testData.options);
+              expect(f).to.be.a[type]();
+              tempFiles.push(f);
+            });
+          };
           const times = 5;
-          _.times(times, function() {
-            const f = fnToTest(testData.options);
-            expect(f).to.be.a[type]();
-            tempFiles.push(f);
-          });
+          createSeveralTemp(times);
           // Check they are unique
           expect(_.uniq(tempFiles).length).to.be.eql(times);
           // Simulate the process exiting
           process.emit('exit');
           testData.onExitValidation();
+
+          createSeveralTemp(times);
+          // Simulate the process receiving SIGINT
+          // Remove the original listener for SIGINT to avoid exit
+          const originalListener = process.listeners('SIGINT').pop();
+          process.removeListener('SIGINT', originalListener);
+          process.emit('SIGINT');
+          process.addListener('SIGINT', originalListener);
+          testData.onExitValidation();
+
+          createSeveralTemp(times);
+          // Simulate the process generating an uncaughtException
+          // Remove mocha listener
+          const mochaListener = process.listeners('uncaughtException').pop();
+          process.removeListener('uncaughtException', mochaListener);
+          try { process.emit('uncaughtException'); } catch (e) { /* Empty */ }
+          testData.onExitValidation();
+          process.addListener('uncaughtException', mochaListener);
         });
       });
     });
